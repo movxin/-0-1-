@@ -1,4 +1,4 @@
-<code>
+﻿<code>
 #include <iostream.h>     
 #include <stdlib.h>     
 #include <math.h>     
@@ -83,4 +83,57 @@ void GenerateInitialPopulation(void)//初始种群,保证每个值都在符合�
 for (i=0; i<S; i++)        
 { int w=0,v=0;        
 for (j=0; j<N;j++)        
-{ k=(rand()%10<5)?0:1; X[i].chromsome[j]=k; w+=k*weight[j];//个体的总重量 v+=k*value[j]; //个体的总价值 } if(w>KW) i--; //如果不是解，重新生成 else { X[i].fitness=v; X[i].weight=w; if(v==stop){bestindividual=X[i];return;}//这种情况一般不会发生 } } } /************************************************************************/ void CalculateFitnessValue() { int i=0,j=0; for (i=0; i<S; i++) { int w=0,v=0; for (j=0; j<N;j++) { w+=X[i].chromsome[j]*weight[j];//个体的总重量 v+=X[i].chromsome[j]*value[j]; //个体的总价值 } X[i].fitness=v; X[i].weight=w; if(v==stop){bestindividual=X[i];return;}//符合条件情况下最优解这种情况一般不会发生 if(w>KW) X[i]=bestindividual; //如果不是解，找最好的一个解代之 } } /************************************************************************/ void SelectionOperator(void) { int i, index; double p, sum=0.0; double cfitness[S];//选择、累积概率 individual newX[S]; for (i=0;i<S;i++) sum+=X[i].fitness;//适应度求和 for (i=0;i<S; i++) cfitness[i]=X[i].fitness/sum; //选择概率 for (i=1;i<S; i++) cfitness[i]=cfitness[i-1]+cfitness[i];//累积概率 for (i=0;i<S;i++) { p=(rand()%1001)/1000.0;//产生一个[0,1]之间的随机数 index=0; while(p>cfitness[index])//轮盘赌进行选择 { index++; } newX[i]=X[index]; } for (i=0; i<S; i++) X[i]=newX[i];//新的种群 } /************************************************************************/ void CrossoverOperator(void)//交叉操作 { int i=0, j=0,k=0;individual temp; for(i=0; i<S; i++) { int p=0,q=0; do { p=rand()%S;//产生两个[0，S]的随机数 q=rand()%S; }while(p==q); int w=1+rand()%N;//[1,N]表示交换的位数 double r=(rand()%1001)/1000.0;//[0,1] if(r<=Pc) { for(j=0;j<w;j++) { temp.chromsome[j]=X[p].chromsome[j];//将要交换的位先放入临时空间 X[p].chromsome[j]=X[q].chromsome[j]; X[q].chromsome[j]=temp.chromsome[j]; } } if(p==best) if(-1==comp(bestindividual,X[p]))//如果变异后适应度变小 X[p]=bestindividual; if(q==best) if(-1==comp(bestindividual,X[q]))//如果变异后适应度变小 X[q]=bestindividual; } } /************************************************************************/ void MutationOperator(void) { int i=0, j=0,k=0,q=0; double p=0; for (i=0; i<S; i++) { for (j=0; j<N; j++) { p=(rand()%1001)/1000.0; if (p<Pm)//对每一位都要考虑 { if(X[i].chromsome[j]==1)X[i].chromsome[j]=0; else X[i].chromsome[j]=1; } } if(i==best) if(-1==comp(bestindividual,X[i]))//如果变异后适应度变小 X[i]=bestindividual; } } /************************************************************************/ void FindBestandWorstIndividual(void) { int i; bestindividual=X[0]; for (i=1;i<S; i++) { if (X[i].fitness>bestindividual.fitness) { bestindividual=X[i]; best=i; } } } /*主函数*****************************************************************/ void main(void) { srand((unsigned)time(0)); t=0; GenerateInitialPopulation(); //初始群体包括产生个体和计算个体的初始值 while (t<=T) { FindBestandWorstIndividual(); //保存当前最优解 SelectionOperator(); //选择 CrossoverOperator(); //交叉 MutationOperator(); //变异 Checkalike(); //检查相似度 CalculateFitnessValue(); //计算新种群适应度 t++; } FindBestandWorstIndividual(); //找到最优解 cout<<bestindividual.fitness<<endl //输出最优值 <<bestindividual.weight<<endl; //对应重量 for(int k=0;k<N;k++)cout<<bestindividual.chromsome[k];//输出最优解 cout<<endl; } /*结束***********************************************************************/
+{ k=(rand()%10<5)?0:1; X[i].chromsome[j]=k; w+=k*weight[j];//个体的总重量 v+=k*value[j]; //个体的总价值 } if(w>KW) i--; //如果不是解，重新生成 else { X[i].fitness=v; X[i].weight=w; if(v==stop){bestindividual=X[i];return;}//这种情况一般不会发生 } } } /************************************************************************/ 
+void CalculateFitnessValue() 
+{ int i=0,j=0; 
+for (i=0; i<S; i++) 
+{ int w=0,v=0; 
+for (j=0; j<N;j++) 
+{ w+=X[i].chromsome[j]*weight[j];//个体的总重量 
+v+=X[i].chromsome[j]*value[j]; //个体的总价值 } 
+X[i].fitness=v; X[i].weight=w; 
+if(v==stop){bestindividual=X[i];return;}//符合条件情况下最优解这种情况一般不会发生 
+if(w>KW) X[i]=bestindividual; //如果不是解，找最好的一个解代之 } } /************************************************************************/ 
+void SelectionOperator(void) { int i, index; double p, sum=0.0; double cfitness[S];//选择、累积概率 
+individual newX[S]; for (i=0;i<S;i++) sum+=X[i].fitness;//适应度求和 
+for (i=0;i<S; i++) cfitness[i]=X[i].fitness/sum; //选择概率 
+for (i=1;i<S; i++) cfitness[i]=cfitness[i-1]+cfitness[i];//累积概率 
+for (i=0;i<S;i++) { p=(rand()%1001)/1000.0;//产生一个[0,1]之间的随机数 
+index=0; while(p>cfitness[index])//轮盘赌进行选择 { index++; } newX[i]=X[index]; } 
+for (i=0; i<S; i++) X[i]=newX[i];//新的种群 } 
+/************************************************************************/ 
+void CrossoverOperator(void)//交叉操作 
+{ int i=0, j=0,k=0;individual temp; 
+for(i=0; i<S; i++) 
+{ int p=0,q=0; 
+do { p=rand()%S;//产生两个[0，S]的随机数 q=rand()%S; }while(p==q); int w=1+rand()%N;//[1,N]表示交换的位数 
+double r=(rand()%1001)/1000.0;//[0,1] 
+if(r<=Pc) { 
+for(j=0;j<w;j++) 
+{ temp.chromsome[j]=X[p].chromsome[j];//将要交换的位先放入临时空间 
+X[p].chromsome[j]=X[q].chromsome[j]; X[q].chromsome[j]=temp.chromsome[j]; } } 
+if(p==best) if(-1==comp(bestindividual,X[p]))//如果变异后适应度变小 
+X[p]=bestindividual; if(q==best) if(-1==comp(bestindividual,X[q]))//如果变异后适应度变小 X[q]=bestindividual; } } /************************************************************************/ 
+void MutationOperator(void) { int i=0, j=0,k=0,q=0; double p=0; 
+for (i=0; i<S; i++) { for (j=0; j<N; j++) { p=(rand()%1001)/1000.0; 
+if (p<Pm)//对每一位都要考虑 { if(X[i].chromsome[j]==1)X[i].chromsome[j]=0; else X[i].chromsome[j]=1; } } if(i==best) if(-1==comp(bestindividual,X[i]))//如果变异后适应度变小 X[i]=bestindividual; } } /************************************************************************/ 
+void FindBestandWorstIndividual(void) { int i; bestindividual=X[0]; for (i=1;i<S; i++) { if (X[i].fitness>bestindividual.fitness) { bestindividual=X[i]; best=i; } } } 
+/*主函数*****************************************************************/ 
+void main(void) 
+{ srand((unsigned)time(0)); t=0; 
+GenerateInitialPopulation(); //初始群体包括产生个体和计算个体的初始值 
+while (t<=T) { 
+FindBestandWorstIndividual(); //保存当前最优解 
+SelectionOperator(); //选择 
+CrossoverOperator(); //交叉 
+MutationOperator(); //变异 
+Checkalike(); //检查相似度 
+CalculateFitnessValue(); //计算新种群适应度 t++; 
+} 
+FindBestandWorstIndividual(); //找到最优解 
+cout<<bestindividual.fitness<<endl //输出最优值 
+<<bestindividual.weight<<endl; //对应重量 
+for(int k=0;k<N;k++)cout<<bestindividual.chromsome[k];//输出最优解 
+cout<<endl; 
+} 
+/*结束***********************************************************************/
